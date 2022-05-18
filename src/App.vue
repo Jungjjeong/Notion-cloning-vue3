@@ -1,49 +1,51 @@
 <template>
-  <header>
-    <RouterLink to="/">Home</RouterLink>
-    <RouterLink to="/about">About</RouterLink>
-  </header>
-  <button v-if="!isLoggedIn" @click="logIn">Log in</button>
-  <button v-else @click="logOut">Log out</button>
-  <section>
-    <RouterView />
-  </section>
+  <div class="app__inner">
+    <div class="app__nav">
+      <LNB />
+    </div>
+    <div class="app__page">
+      <div class="page__header"></div>
+      <div class="page__container"><RouterView /></div>
+    </div>
+  </div>
 </template>
 
 <script>
+import LNB from "~/components/LNB";
 export default {
-  computed: {
-    isLoggedIn() {
-      return this.$store.state.user.isLoggedIn;
-    },
-  },
-  created() {
-    this.$store.dispatch("user/initialize");
-  },
-  methods: {
-    logIn() {
-      this.$router.push("/login");
-    },
-    logOut() {
-      this.$store.dispatch("user/logOut");
-    },
+  components: {
+    LNB,
   },
 };
 </script>
 
 
 <style lang="scss" scoped>
-header {
-  background-color: white;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 80px;
-  display: flex;
-  align-items: center;
+* {
+  border: 1px solid;
+  box-sizing: border-box;
 }
-section {
-  margin-top: 80px;
+.app__inner {
+  display: flex;
+  height: 100vh;
+  color: $color-font;
+  font-size: 14px;
+  line-height: 1.4;
+  font-family: "Noto Sans KR", sans-serif;
+  font-family: "Ubuntu", sans-serif;
+
+  .app__page {
+    flex-grow: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    .page__header {
+      height: 80px;
+    }
+    .page__container {
+      flex-grow: 1;
+      overflow-y: auto;
+    }
+  }
 }
 </style>
