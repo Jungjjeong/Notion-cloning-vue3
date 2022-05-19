@@ -121,6 +121,7 @@ li {
       font-size: 18px;
       color: $color-icon;
       margin-right: 4px;
+      cursor: pointer;
       &:hover {
         background-color: $color-background--hover2;
       }

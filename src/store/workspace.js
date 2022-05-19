@@ -83,6 +83,7 @@ export default {
     async deleteWorkspace({ state, dispatch }, payload) {
       const { id } = payload;
       await _request({
+        id,
         method: "DELETE",
       });
 
