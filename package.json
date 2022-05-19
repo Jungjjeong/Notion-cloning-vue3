@@ -36,6 +36,7 @@
     "webpack-dev-server": "^4.9.0"
   },
   "dependencies": {
+    "interactjs": "^1.10.11",
     "vue": "^3.2.33",
     "vue-router": "^4.0.13",
     "vuex": "^4.0.2"

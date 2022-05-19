@@ -1,3 +1,4 @@
+import router from "~/routes";
 const API_ADDRESS = "https://kdt-frontend.programmers.co.kr/documents/";
 
 export default {
@@ -5,6 +6,8 @@ export default {
   state() {
     return {
       workspaces: [],
+      currentWorkspace: {},
+      currentWorkspacePath: [],
     };
   },
   getters: {},
@@ -18,45 +21,111 @@ export default {
   actions: {
     async createWorkspace({ dispatch }, payload = {}) {
       const { parentId } = payload;
-      await fetch(API_ADDRESS, {
+      const workspace = await _request({
         method: "POST",
-        headers: {
-          "x-username": "Jiyoung",
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           title: "",
           parent: parentId,
         }),
-      }).then((res) => res.json());
+      });
 
       await dispatch("readWorkspaces");
-    },
-    async readWorkspaces({ commit }) {
-      const workspaces = await fetch(API_ADDRESS, {
-        method: "GET",
-        headers: {
-          "x-username": "Jiyoung",
-          "Content-Type": "application/json",
+      router.push({
+        name: "Workspace",
+        params: {
+          id: workspace.id,
         },
-      }).then((res) => res.json());
+      });
+    },
+    async readWorkspaces({ commit, dispatch }) {
+      const workspaces = await _request({
+        method: "GET",
+      });
+
       commit("assignState", {
         workspaces,
       });
+
+      dispatch("findWorkspacePath");
+
+      if (!workspaces.length) {
+        dispatch("createWorkspace");
+      }
     },
-    readWorkspace() {},
-    updateWorkspace() {},
-    async deleteWorkspace({ dispatch }, payload) {
+    async readWorkspace({ commit }, payload) {
       const { id } = payload;
-      await fetch(`${API_ADDRESS}${id}`, {
-        method: "DELETE",
-        headers: {
-          "x-username": "Jiyoung",
-          "Content-Type": "application/json",
-        },
-      }).then((res) => res.json());
+      try {
+        const workspace = await _request({
+          id,
+          method: "GET",
+        });
+
+        commit("assignState", {
+          currentWorkspace: workspace,
+        });
+      } catch (e) {
+        router.push("/error");
+      }
+    },
+    async updateWorkspace({ dispatch }, payload) {
+      const { id, title, content } = payload;
+      await _request({
+        id,
+        method: "PUT",
+        body: JSON.stringify({
+          title,
+          content,
+        }),
+      });
 
       dispatch("readWorkspaces");
     },
+    async deleteWorkspace({ state, dispatch }, payload) {
+      const { id } = payload;
+      await _request({
+        method: "DELETE",
+      });
+
+      await dispatch("readWorkspaces");
+      if ((id === parseInt(router.currentRoute.value.params.id), 10)) {
+        router.push({
+          name: "Workspace",
+          params: {
+            id: state.workspaces[0].id,
+          },
+        });
+      }
+    },
+    findWorkspacePath({ state, commit }) {
+      const currentWorkspaceId = parseInt(
+        router.currentRoute.value.params.id,
+        10
+      );
+
+      function _find(workspace, parents) {
+        if (currentWorkspaceId === workspace.id) {
+          commit("assignState", {
+            currentWorkspacePath: [...parents, workspace],
+          });
+        }
+        if (workspace.documents) {
+          workspace.documents.forEach((ws) =>
+            _find(ws, [...parents, workspace])
+          );
+        }
+      }
+      state.workspaces.forEach((workspace) => _find(workspace, []));
+    },
   },
 };
+
+async function _request(options) {
+  const { id = "" } = options;
+  return await fetch(`${API_ADDRESS}${id}`, {
+    ...options,
+    headers: {
+      "x-username": "Jiyoung",
+      "Content-Type": "application/json",
+    },
+  }).then((res) => res.json());
+}

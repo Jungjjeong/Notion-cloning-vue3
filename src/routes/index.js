@@ -1,9 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import Home from "./Home";
-import About from "./About";
-import LogIn from "./LogIn";
-import Docs from "./Docs";
-import DocsId from "./DocsId";
+import Workspace from "./Workspace";
 import NotFound from "./NotFound";
 
 export default createRouter({
@@ -14,29 +10,12 @@ export default createRouter({
   routes: [
     {
       path: "/",
-      name: "home",
-      component: Home,
-    },
-    {
-      path: "/about",
-      name: "about",
-      component: About,
-      meta: {
-        requiresAuth: true,
-      },
-    },
-    {
-      path: "/login",
-      name: "login",
-      component: LogIn,
-    },
-    {
-      path: "/documents",
-      component: Docs,
+      component: Workspace,
       children: [
         {
-          path: ":id",
-          component: DocsId,
+          name: "Workspace",
+          path: "workspace/:id",
+          component: Workspace,
         },
       ],
     },
